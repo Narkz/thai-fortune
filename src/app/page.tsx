@@ -9,18 +9,24 @@ import HoroscopeWidget from "@/components/HoroscopeWidget";
 import DirectionWidget from "@/components/DirectionWidget";
 import { formatThaiDate, getBirthColor } from "@/lib/fortune";
 
-// Default background for onboarding
-const DEFAULT_BG = "linear-gradient(165deg, #0d4a4e 0%, #082a2d 50%, #061f22 100%)";
-const DEFAULT_GLOW = "rgba(79, 209, 197, 0.2)";
+// Default background - rich teal like reference design
+const DEFAULT_BG = "linear-gradient(165deg, #134e4a 0%, #0f3d3a 50%, #0a2725 100%)";
+const DEFAULT_GLOW = "rgba(94, 234, 212, 0.3)";
 
-// Stagger animation config
+// Custom easing curves from animations.dev blueprint
+// ease-out-custom: Strong acceleration at start, smooth deceleration
+const EASE_OUT = [0.16, 1, 0.3, 1];
+// ease-out-expo: Even more dramatic for entrances
+const EASE_OUT_EXPO = [0.19, 1, 0.22, 1];
+
+// Stagger animation config with animations.dev principles
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
+      staggerChildren: 0.1,
+      delayChildren: 0.05,
     },
   },
 };
@@ -28,16 +34,18 @@ const containerVariants = {
 const itemVariants = {
   hidden: {
     opacity: 0,
-    y: 40,
-    filter: "blur(10px)",
+    y: 30,
+    filter: "blur(8px)",
+    scale: 0.96,
   },
   visible: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
+    scale: 1,
     transition: {
-      duration: 0.7,
-      ease: [0.23, 1, 0.32, 1], // Custom ease-out
+      duration: 0.5,
+      ease: EASE_OUT_EXPO,
     },
   },
 };

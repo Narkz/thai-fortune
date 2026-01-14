@@ -1,61 +1,61 @@
 // Thai Day Colors - Traditional Thai color system based on day of birth
-// Each day has a sophisticated dark background gradient with the color as accent
+// Rich, vibrant backgrounds inspired by the reference design - sophisticated but alive
 export const THAI_DAY_COLORS = {
   0: {
     name: "Red",
     thai: "สีแดง",
-    hex: "#DC2626",
+    hex: "#f87171",
     gradient: "from-red-500 to-rose-600",
-    bgGradient: "linear-gradient(165deg, #2d1418 0%, #1a0a0c 50%, #0f0607 100%)",
-    glowColor: "rgba(220, 38, 38, 0.15)"
+    bgGradient: "linear-gradient(165deg, #4a1d24 0%, #2d1219 50%, #1a0a0f 100%)",
+    glowColor: "rgba(248, 113, 113, 0.25)"
   },
   1: {
     name: "Yellow",
     thai: "สีเหลือง",
-    hex: "#EAB308",
+    hex: "#fbbf24",
     gradient: "from-yellow-400 to-amber-500",
-    bgGradient: "linear-gradient(165deg, #2d2a14 0%, #1a1808 50%, #0f0e04 100%)",
-    glowColor: "rgba(234, 179, 8, 0.15)"
+    bgGradient: "linear-gradient(165deg, #4a4419 0%, #2d2a0f 50%, #1a1908 100%)",
+    glowColor: "rgba(251, 191, 36, 0.25)"
   },
   2: {
     name: "Pink",
     thai: "สีชมพู",
-    hex: "#EC4899",
+    hex: "#f472b6",
     gradient: "from-pink-400 to-rose-500",
-    bgGradient: "linear-gradient(165deg, #2d1424 0%, #1a0a14 50%, #0f060a 100%)",
-    glowColor: "rgba(236, 72, 153, 0.15)"
+    bgGradient: "linear-gradient(165deg, #4a1d35 0%, #2d1221 50%, #1a0a14 100%)",
+    glowColor: "rgba(244, 114, 182, 0.25)"
   },
   3: {
     name: "Green",
     thai: "สีเขียว",
-    hex: "#22C55E",
+    hex: "#4ade80",
     gradient: "from-green-400 to-emerald-500",
-    bgGradient: "linear-gradient(165deg, #0d4a4e 0%, #082a2d 50%, #061f22 100%)",
-    glowColor: "rgba(34, 197, 94, 0.15)"
+    bgGradient: "linear-gradient(165deg, #134e4a 0%, #0f3d3a 50%, #0a2725 100%)",
+    glowColor: "rgba(74, 222, 128, 0.2)"
   },
   4: {
     name: "Orange",
     thai: "สีส้ม",
-    hex: "#F97316",
+    hex: "#fb923c",
     gradient: "from-orange-400 to-amber-500",
-    bgGradient: "linear-gradient(165deg, #2d1f14 0%, #1a1208 50%, #0f0b04 100%)",
-    glowColor: "rgba(249, 115, 22, 0.15)"
+    bgGradient: "linear-gradient(165deg, #4a2d1a 0%, #2d1c10 50%, #1a1008 100%)",
+    glowColor: "rgba(251, 146, 60, 0.25)"
   },
   5: {
     name: "Blue",
     thai: "สีฟ้า",
-    hex: "#3B82F6",
+    hex: "#60a5fa",
     gradient: "from-blue-400 to-cyan-500",
-    bgGradient: "linear-gradient(165deg, #14202d 0%, #0a121a 50%, #06090f 100%)",
-    glowColor: "rgba(59, 130, 246, 0.15)"
+    bgGradient: "linear-gradient(165deg, #1e3a5f 0%, #152a45 50%, #0c1a2e 100%)",
+    glowColor: "rgba(96, 165, 250, 0.25)"
   },
   6: {
     name: "Purple",
     thai: "สีม่วง",
-    hex: "#A855F7",
+    hex: "#c084fc",
     gradient: "from-purple-400 to-violet-500",
-    bgGradient: "linear-gradient(165deg, #1f142d 0%, #120a1a 50%, #09060f 100%)",
-    glowColor: "rgba(168, 85, 247, 0.15)"
+    bgGradient: "linear-gradient(165deg, #3b1d5a 0%, #2a1442 50%, #1a0c2a 100%)",
+    glowColor: "rgba(192, 132, 252, 0.25)"
   },
 } as const;
 

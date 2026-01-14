@@ -125,9 +125,9 @@ export default function BirthdayPicker({ onSubmit }: BirthdayPickerProps) {
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white text-lg focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all appearance-none cursor-pointer"
               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-opacity='0.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 1rem center", backgroundSize: "1.25rem" }}
             >
-              <option value="" className="bg-[#0d3b3e] text-white">Select month</option>
+              <option value="" className="bg-[#134e4a] text-white">Select month</option>
               {months.map((m) => (
-                <option key={m.value} value={m.value} className="bg-[#0d3b3e] text-white">
+                <option key={m.value} value={m.value} className="bg-[#134e4a] text-white">
                   {m.label}
                 </option>
               ))}
@@ -162,14 +162,15 @@ export default function BirthdayPicker({ onSubmit }: BirthdayPickerProps) {
           </motion.p>
         )}
 
-        {/* Submit Button */}
+        {/* Submit Button - with animations.dev 0.97 scale technique */}
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.4, ease: [0.19, 1, 0.22, 1] }}
           onClick={handleSubmit}
-          whileTap={{ scale: 0.98 }}
-          className="w-full mt-6 bg-gradient-to-r from-teal-400 to-cyan-400 text-[#0d3b3e] font-semibold py-4 rounded-xl shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 transition-all duration-300"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          className="w-full mt-6 bg-gradient-to-r from-teal-400 to-emerald-400 text-[#0a2725] font-semibold py-4 rounded-xl shadow-lg shadow-teal-500/30 hover:shadow-teal-500/50 transition-shadow duration-150"
         >
           Reveal My Fortune
         </motion.button>
