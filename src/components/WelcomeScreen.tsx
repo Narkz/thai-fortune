@@ -35,7 +35,7 @@ const FLOATING_CARDS: {
 ];
 
 // Star field
-const STARS = Array.from({ length: 100 }, () => ({
+const STARS = Array.from({ length: 80 }, () => ({
   x: Math.random() * 100,
   y: Math.random() * 100,
   size: Math.random() * 2 + 0.5,
@@ -43,6 +43,42 @@ const STARS = Array.from({ length: 100 }, () => ({
   delay: Math.random() * 3,
   duration: 2 + Math.random() * 3,
 }));
+
+// Constellation patterns - groups of connected stars
+const CONSTELLATIONS = [
+  // Top-left constellation
+  {
+    stars: [
+      { x: 8, y: 12 }, { x: 15, y: 8 }, { x: 22, y: 15 }, { x: 18, y: 22 }, { x: 10, y: 20 }
+    ],
+    connections: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [1, 3]],
+    delay: 0,
+  },
+  // Top-right constellation
+  {
+    stars: [
+      { x: 78, y: 8 }, { x: 85, y: 12 }, { x: 90, y: 18 }, { x: 82, y: 22 }, { x: 75, y: 16 }
+    ],
+    connections: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]],
+    delay: 0.3,
+  },
+  // Bottom-left constellation
+  {
+    stars: [
+      { x: 5, y: 75 }, { x: 12, y: 70 }, { x: 20, y: 72 }, { x: 18, y: 82 }, { x: 8, y: 85 }
+    ],
+    connections: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0], [1, 4]],
+    delay: 0.6,
+  },
+  // Bottom-right constellation
+  {
+    stars: [
+      { x: 82, y: 78 }, { x: 88, y: 72 }, { x: 95, y: 76 }, { x: 92, y: 85 }, { x: 85, y: 88 }
+    ],
+    connections: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 0]],
+    delay: 0.9,
+  },
+];
 
 export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
   const currentYear = new Date().getFullYear();
@@ -159,6 +195,55 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
           />
         ))}
       </div>
+
+      {/* Constellations with connecting lines */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+        {CONSTELLATIONS.map((constellation, cIndex) => (
+          <g key={cIndex}>
+            {/* Connecting lines */}
+            {constellation.connections.map(([from, to], lIndex) => {
+              const star1 = constellation.stars[from];
+              const star2 = constellation.stars[to];
+              return (
+                <motion.line
+                  key={`line-${cIndex}-${lIndex}`}
+                  x1={`${star1.x}%`}
+                  y1={`${star1.y}%`}
+                  x2={`${star2.x}%`}
+                  y2={`${star2.y}%`}
+                  stroke="rgba(167, 139, 250, 0.3)"
+                  strokeWidth="1"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: [0, 0.4, 0.2] }}
+                  transition={{
+                    pathLength: { duration: 1.5, delay: constellation.delay + lIndex * 0.1, ease: "easeOut" },
+                    opacity: { duration: 3, delay: constellation.delay, repeat: Infinity, repeatType: "reverse" },
+                  }}
+                />
+              );
+            })}
+            {/* Constellation stars (brighter than field stars) */}
+            {constellation.stars.map((star, sIndex) => (
+              <motion.circle
+                key={`star-${cIndex}-${sIndex}`}
+                cx={`${star.x}%`}
+                cy={`${star.y}%`}
+                r="2.5"
+                fill="rgba(167, 139, 250, 0.8)"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{
+                  scale: [1, 1.3, 1],
+                  opacity: [0.6, 1, 0.6]
+                }}
+                transition={{
+                  scale: { duration: 2, repeat: Infinity, delay: constellation.delay + sIndex * 0.1 },
+                  opacity: { duration: 2, repeat: Infinity, delay: constellation.delay + sIndex * 0.1 },
+                }}
+              />
+            ))}
+          </g>
+        ))}
+      </svg>
 
       {/* Nebula effects */}
       <div
