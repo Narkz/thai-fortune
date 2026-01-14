@@ -25,9 +25,9 @@ export default function MarqueeTicker({ accentColor = "#5eead4" }: MarqueeTicker
 
   return (
     <div className="relative overflow-hidden py-3">
-      {/* Gradient fade edges */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-[#0a2725] to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-[#0a2725] to-transparent z-10 pointer-events-none" />
+      {/* Gradient fade edges - inherit from background */}
+      <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-black/40 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-black/40 to-transparent z-10 pointer-events-none" />
 
       {/* Marquee track */}
       <motion.div

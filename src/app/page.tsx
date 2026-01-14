@@ -125,7 +125,7 @@ export default function Home() {
       {/* 3D Glass floating elements */}
       <GlassElements accentColor={glowColor} />
 
-      <main className="min-h-screen relative overflow-hidden">
+      <main className="min-h-screen relative overflow-hidden noise-overlay">
         {/* Ambient background glows - with scroll parallax */}
         <motion.div
           className="ambient-glow top-[-200px] left-[-100px]"

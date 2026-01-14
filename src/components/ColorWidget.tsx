@@ -65,11 +65,29 @@ export default function ColorWidget({ birthday }: ColorWidgetProps) {
                 ease: "easeInOut",
               }}
             />
-            {/* Solid color */}
+            {/* Solid color with shine */}
             <div
-              className="relative w-16 h-16 rounded-2xl"
+              className="relative w-16 h-16 rounded-2xl overflow-hidden"
               style={{ backgroundColor: birthData.color.hex }}
-            />
+            >
+              {/* Shine effect */}
+              <motion.div
+                className="absolute inset-0"
+                style={{
+                  background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 60%)",
+                  backgroundSize: "200% 100%",
+                }}
+                animate={{
+                  backgroundPosition: ["200% 0", "-200% 0"],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  repeatDelay: 4,
+                  ease: "easeInOut",
+                }}
+              />
+            </div>
           </motion.div>
           <div>
             <h3 className="text-gray-900 text-2xl font-semibold">

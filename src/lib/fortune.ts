@@ -14,8 +14,8 @@ export const THAI_DAY_COLORS = {
     thai: "สีเหลือง",
     hex: "#fbbf24",
     gradient: "from-yellow-400 to-amber-500",
-    bgGradient: "linear-gradient(165deg, #4a4419 0%, #2d2a0f 50%, #1a1908 100%)",
-    glowColor: "rgba(251, 191, 36, 0.25)"
+    bgGradient: "linear-gradient(165deg, #78350f 0%, #451a03 50%, #1c0a00 100%)",
+    glowColor: "rgba(251, 191, 36, 0.3)"
   },
   2: {
     name: "Pink",
