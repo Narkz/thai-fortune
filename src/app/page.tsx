@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import BirthdayPicker from "@/components/BirthdayPicker";
+import WelcomeScreen from "@/components/WelcomeScreen";
 import ColorWidget from "@/components/ColorWidget";
 import NumberWidget from "@/components/NumberWidget";
 import HoroscopeWidget from "@/components/HoroscopeWidget";
@@ -144,14 +144,13 @@ export default function Home() {
           <AnimatePresence mode="wait">
             {!birthday ? (
               <motion.div
-                key="picker"
+                key="welcome"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-                transition={{ duration: 0.5 }}
-                className="min-h-screen flex items-center justify-center"
+                exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               >
-                <BirthdayPicker onSubmit={handleBirthdaySubmit} />
+                <WelcomeScreen onSubmit={handleBirthdaySubmit} />
               </motion.div>
             ) : (
               <motion.div
