@@ -1,54 +1,56 @@
 "use client";
 
-import { motion, useMotionValue, useSpring } from "framer-motion";
-import { useState, useEffect } from "react";
-import { TarotDesign } from "./TarotCard";
-import ParallaxCard from "./ParallaxCard";
+import { motion } from "framer-motion";
+import { useState } from "react";
+import TarotCard, { TarotDesign } from "./TarotCard";
 import { hapticSuccess, hapticError, hapticLight } from "@/lib/haptics";
 
 interface WelcomeScreenProps {
   onSubmit: (date: Date) => void;
 }
 
-// Card configurations - positioned to be visible but peeking
-const FLOATING_CARDS: {
+// Cards stacked in a fan spread - left and right of center
+const LEFT_CARDS: {
   design: TarotDesign;
   color: string;
-  x: number; // percentage from center
-  y: number; // percentage from center
   rotation: number;
-  scale: number;
+  offsetX: number;
+  offsetY: number;
   delay: number;
-  parallaxStrength: number;
 }[] = [
-  // Left side
-  { design: "moon", color: "#6366f1", x: -42, y: -35, rotation: -15, scale: 0.85, delay: 0, parallaxStrength: 20 },
-  { design: "lotus", color: "#ec4899", x: -45, y: 5, rotation: -22, scale: 0.8, delay: 0.15, parallaxStrength: 15 },
-  { design: "zodiac", color: "#8b5cf6", x: -38, y: 40, rotation: 12, scale: 0.75, delay: 0.3, parallaxStrength: 25 },
-
-  // Right side
-  { design: "sun", color: "#f59e0b", x: 42, y: -38, rotation: 18, scale: 0.9, delay: 0.1, parallaxStrength: 18 },
-  { design: "crystal", color: "#06b6d4", x: 48, y: 0, rotation: -10, scale: 0.78, delay: 0.2, parallaxStrength: 22 },
-  { design: "eye", color: "#10b981", x: 40, y: 35, rotation: 15, scale: 0.82, delay: 0.25, parallaxStrength: 20 },
-
-  // Top & bottom extras
-  { design: "star", color: "#f472b6", x: -15, y: -48, rotation: 8, scale: 0.7, delay: 0.35, parallaxStrength: 30 },
-  { design: "star", color: "#f97316", x: 18, y: 48, rotation: -12, scale: 0.72, delay: 0.4, parallaxStrength: 28 },
+  { design: "moon", color: "#6366f1", rotation: -25, offsetX: -30, offsetY: 20, delay: 0 },
+  { design: "star", color: "#ec4899", rotation: -15, offsetX: -15, offsetY: 10, delay: 0.1 },
+  { design: "lotus", color: "#8b5cf6", rotation: -5, offsetX: 0, offsetY: 0, delay: 0.2 },
 ];
 
-// Constellation points
-const CONSTELLATION_POINTS = [
-  { x: 15, y: 20 }, { x: 25, y: 15 }, { x: 35, y: 22 }, { x: 30, y: 35 },
-  { x: 70, y: 18 }, { x: 80, y: 25 }, { x: 75, y: 35 }, { x: 85, y: 30 },
-  { x: 20, y: 70 }, { x: 30, y: 75 }, { x: 25, y: 85 },
-  { x: 75, y: 70 }, { x: 82, y: 78 }, { x: 70, y: 82 },
+const RIGHT_CARDS: {
+  design: TarotDesign;
+  color: string;
+  rotation: number;
+  offsetX: number;
+  offsetY: number;
+  delay: number;
+}[] = [
+  { design: "sun", color: "#f59e0b", rotation: 25, offsetX: 30, offsetY: 20, delay: 0.05 },
+  { design: "crystal", color: "#06b6d4", rotation: 15, offsetX: 15, offsetY: 10, delay: 0.15 },
+  { design: "eye", color: "#10b981", rotation: 5, offsetX: 0, offsetY: 0, delay: 0.25 },
 ];
 
-const CONSTELLATION_LINES = [
-  [0, 1], [1, 2], [2, 3], [3, 0],
-  [4, 5], [5, 6], [6, 7],
-  [8, 9], [9, 10],
-  [11, 12], [12, 13],
+// Star field configuration
+const STARS = Array.from({ length: 80 }, (_, i) => ({
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  size: Math.random() * 2 + 0.5,
+  opacity: Math.random() * 0.5 + 0.2,
+  delay: Math.random() * 3,
+  duration: 2 + Math.random() * 3,
+}));
+
+// Shooting stars
+const SHOOTING_STARS = [
+  { startX: 20, startY: 10, angle: 35, delay: 2, duration: 1 },
+  { startX: 70, startY: 5, angle: 40, delay: 5, duration: 0.8 },
+  { startX: 85, startY: 20, angle: 30, delay: 8, duration: 1.2 },
 ];
 
 export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
@@ -57,27 +59,6 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [error, setError] = useState("");
-
-  // Mouse position for parallax
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  // Smooth spring physics for mouse movement
-  const smoothMouseX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 50, damping: 20 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { innerWidth, innerHeight } = window;
-      // Normalize to -1 to 1
-      mouseX.set((clientX / innerWidth - 0.5) * 2);
-      mouseY.set((clientY / innerHeight - 0.5) * 2);
-    };
-
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
 
   const months = [
     { value: "1", label: "January" },
@@ -140,107 +121,151 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
 
   return (
     <div className="min-h-screen relative overflow-hidden flex items-center justify-center">
-      {/* Constellation lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 0 }}>
-        {CONSTELLATION_LINES.map(([from, to], i) => (
-          <motion.line
-            key={`line-${i}`}
-            x1={`${CONSTELLATION_POINTS[from].x}%`}
-            y1={`${CONSTELLATION_POINTS[from].y}%`}
-            x2={`${CONSTELLATION_POINTS[to].x}%`}
-            y2={`${CONSTELLATION_POINTS[to].y}%`}
-            stroke="rgba(255,255,255,0.08)"
-            strokeWidth="1"
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 1.5, delay: 0.5 + i * 0.1, ease: "easeOut" }}
-          />
-        ))}
-        {CONSTELLATION_POINTS.map((point, i) => (
-          <motion.circle
-            key={`point-${i}`}
-            cx={`${point.x}%`}
-            cy={`${point.y}%`}
-            r="2"
-            fill="rgba(255,255,255,0.3)"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 + i * 0.05 }}
-          />
-        ))}
-      </svg>
-
-      {/* Floating Tarot Cards with parallax */}
-      {FLOATING_CARDS.map((card, index) => (
-        <ParallaxCard
-          key={index}
-          design={card.design}
-          color={card.color}
-          x={card.x}
-          y={card.y}
-          rotation={card.rotation}
-          scale={card.scale}
-          delay={card.delay}
-          parallaxStrength={card.parallaxStrength}
-          smoothMouseX={smoothMouseX}
-          smoothMouseY={smoothMouseY}
-        />
-      ))}
-
-      {/* Sparkle particles */}
-      {[...Array(30)].map((_, i) => (
-        <motion.div
-          key={`sparkle-${i}`}
-          className="absolute rounded-full"
-          style={{
-            left: `${5 + Math.random() * 90}%`,
-            top: `${5 + Math.random() * 90}%`,
-            width: Math.random() * 3 + 1,
-            height: Math.random() * 3 + 1,
-            background: `rgba(255, 255, 255, ${0.2 + Math.random() * 0.4})`,
-          }}
-          animate={{
-            opacity: [0, 1, 0],
-            scale: [0, 1.5, 0],
-          }}
-          transition={{
-            duration: 2 + Math.random() * 3,
-            repeat: Infinity,
-            delay: Math.random() * 4,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-
-      {/* Glowing orbs */}
-      <motion.div
-        className="absolute w-96 h-96 rounded-full pointer-events-none"
+      {/* Cosmic background */}
+      <div
+        className="absolute inset-0 -z-10"
         style={{
-          background: "radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)",
-          filter: "blur(40px)",
-          left: "10%",
-          top: "20%",
+          background: "linear-gradient(180deg, #0f0a1e 0%, #1a1035 30%, #0d1b2a 70%, #0a0a12 100%)",
         }}
-        animate={{
-          scale: [1, 1.2, 1],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
-      <motion.div
-        className="absolute w-80 h-80 rounded-full pointer-events-none"
+
+      {/* Nebula glow effects */}
+      <div
+        className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full -z-5"
+        style={{
+          background: "radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)",
+          filter: "blur(60px)",
+        }}
+      />
+      <div
+        className="absolute bottom-0 right-1/4 w-[400px] h-[400px] rounded-full -z-5"
         style={{
           background: "radial-gradient(circle, rgba(236, 72, 153, 0.12) 0%, transparent 70%)",
-          filter: "blur(40px)",
-          right: "15%",
-          bottom: "25%",
+          filter: "blur(50px)",
         }}
-        animate={{
-          scale: [1, 1.15, 1],
-          opacity: [0.3, 0.45, 0.3],
-        }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
+
+      {/* Star field */}
+      <div className="absolute inset-0 -z-5">
+        {STARS.map((star, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-white"
+            style={{
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: star.size,
+              height: star.size,
+            }}
+            animate={{
+              opacity: [star.opacity, star.opacity * 1.5, star.opacity],
+              scale: [1, 1.2, 1],
+            }}
+            transition={{
+              duration: star.duration,
+              repeat: Infinity,
+              delay: star.delay,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Shooting stars */}
+      {SHOOTING_STARS.map((star, i) => (
+        <motion.div
+          key={`shooting-${i}`}
+          className="absolute w-1 h-1 bg-white rounded-full"
+          style={{
+            left: `${star.startX}%`,
+            top: `${star.startY}%`,
+            boxShadow: "0 0 6px 2px rgba(255,255,255,0.6)",
+          }}
+          initial={{ opacity: 0, x: 0, y: 0 }}
+          animate={{
+            opacity: [0, 1, 1, 0],
+            x: [0, Math.cos(star.angle * Math.PI / 180) * 200],
+            y: [0, Math.sin(star.angle * Math.PI / 180) * 200],
+          }}
+          transition={{
+            duration: star.duration,
+            delay: star.delay,
+            repeat: Infinity,
+            repeatDelay: 7 + i * 2,
+            ease: "easeOut",
+          }}
+        />
+      ))}
+
+      {/* Left card stack */}
+      <div className="absolute left-4 sm:left-12 top-1/2 -translate-y-1/2">
+        {LEFT_CARDS.map((card, index) => (
+          <motion.div
+            key={`left-${index}`}
+            className="absolute"
+            style={{
+              transform: `translateX(${card.offsetX}px) translateY(${card.offsetY}px)`,
+              zIndex: LEFT_CARDS.length - index,
+            }}
+            initial={{ opacity: 0, x: -50, rotate: card.rotation - 20 }}
+            animate={{
+              opacity: 1,
+              x: 0,
+              rotate: card.rotation,
+              y: [0, -5, 0],
+            }}
+            transition={{
+              opacity: { duration: 0.6, delay: card.delay },
+              x: { duration: 0.6, delay: card.delay, ease: [0.16, 1, 0.3, 1] },
+              rotate: { duration: 0.6, delay: card.delay, ease: [0.16, 1, 0.3, 1] },
+              y: { duration: 3 + index * 0.5, repeat: Infinity, ease: "easeInOut", delay: card.delay + 1 },
+            }}
+          >
+            <TarotCard
+              design={card.design}
+              color={card.color}
+              rotation={0}
+              scale={0.85}
+              delay={0}
+            />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Right card stack */}
+      <div className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2">
+        {RIGHT_CARDS.map((card, index) => (
+          <motion.div
+            key={`right-${index}`}
+            className="absolute right-0"
+            style={{
+              transform: `translateX(${card.offsetX}px) translateY(${card.offsetY}px)`,
+              zIndex: RIGHT_CARDS.length - index,
+            }}
+            initial={{ opacity: 0, x: 50, rotate: card.rotation + 20 }}
+            animate={{
+              opacity: 1,
+              x: 0,
+              rotate: card.rotation,
+              y: [0, -5, 0],
+            }}
+            transition={{
+              opacity: { duration: 0.6, delay: card.delay },
+              x: { duration: 0.6, delay: card.delay, ease: [0.16, 1, 0.3, 1] },
+              rotate: { duration: 0.6, delay: card.delay, ease: [0.16, 1, 0.3, 1] },
+              y: { duration: 3.5 + index * 0.5, repeat: Infinity, ease: "easeInOut", delay: card.delay + 1.2 },
+            }}
+          >
+            <TarotCard
+              design={card.design}
+              color={card.color}
+              rotation={0}
+              scale={0.85}
+              delay={0}
+            />
+          </motion.div>
+        ))}
+      </div>
 
       {/* Center content */}
       <motion.div
@@ -258,7 +283,7 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
             transition={{ delay: 0.5 }}
           >
             <motion.span
-              className="w-2 h-2 rounded-full bg-emerald-400"
+              className="w-2 h-2 rounded-full bg-violet-400"
               animate={{ scale: [1, 1.3, 1], opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
@@ -296,7 +321,7 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
           initial={{ opacity: 0, y: 30, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ delay: 1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="glass-card rounded-3xl p-6"
+          className="backdrop-blur-xl bg-white/[0.08] border border-white/[0.12] rounded-3xl p-6 shadow-2xl"
         >
           {/* Date inputs */}
           <div className="space-y-4">
@@ -313,7 +338,7 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
                   value={day}
                   onChange={(e) => setDay(e.target.value)}
                   placeholder="15"
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg placeholder:text-white/20 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
                 />
               </div>
               <div className="flex-[2]">
@@ -323,7 +348,7 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
                 <select
                   value={month}
                   onChange={(e) => setMonth(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all appearance-none cursor-pointer"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all appearance-none cursor-pointer"
                   style={{
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-opacity='0.4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                     backgroundRepeat: "no-repeat",
@@ -353,7 +378,7 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
                 placeholder="1990"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg placeholder:text-white/20 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-lg placeholder:text-white/20 focus:outline-none focus:border-violet-500/50 focus:bg-white/10 transition-all"
               />
             </div>
           </div>
@@ -374,7 +399,7 @@ export default function WelcomeScreen({ onSubmit }: WelcomeScreenProps) {
             onClick={handleSubmit}
             whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(139, 92, 246, 0.3)" }}
             whileTap={{ scale: 0.97 }}
-            className="w-full mt-6 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white font-semibold py-4 rounded-xl shadow-lg shadow-violet-500/25 transition-shadow relative overflow-hidden group"
+            className="w-full mt-6 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-violet-500/30 transition-all relative overflow-hidden"
           >
             {/* Shimmer effect */}
             <motion.div
