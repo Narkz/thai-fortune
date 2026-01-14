@@ -1,10 +1,48 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useSpring, useTransform, useInView } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 import { calculateLuckyNumber, getDailyLuckyNumber } from "@/lib/fortune";
 
 interface NumberWidgetProps {
   birthday: Date;
+}
+
+// Animated counter component
+function AnimatedNumber({ value, delay = 0, className }: { value: number; delay?: number; className?: string }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  const spring = useSpring(0, {
+    stiffness: 50,
+    damping: 20,
+    mass: 1,
+  });
+
+  const display = useTransform(spring, (current) => Math.round(current));
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = display.on("change", (v) => setDisplayValue(v));
+    return () => unsubscribe();
+  }, [display]);
+
+  useEffect(() => {
+    if (isInView && !hasAnimated) {
+      const timeout = setTimeout(() => {
+        spring.set(value);
+        setHasAnimated(true);
+      }, delay * 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isInView, value, spring, delay, hasAnimated]);
+
+  return (
+    <span ref={ref} className={className}>
+      {displayValue}
+    </span>
+  );
 }
 
 export default function NumberWidget({ birthday }: NumberWidgetProps) {
@@ -29,13 +67,19 @@ export default function NumberWidget({ birthday }: NumberWidgetProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-      className="glass-card rounded-3xl p-6 overflow-hidden relative"
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      className="glass-card rounded-3xl p-6 overflow-hidden relative cursor-pointer"
     >
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-2xl" />
+      <motion.div
+        className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-teal-400/20 to-transparent rounded-full blur-2xl"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.2, 0.3, 0.2],
+        }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+      />
 
       {/* Label */}
       <span className="text-white/50 text-xs uppercase tracking-wider font-medium">
@@ -48,28 +92,33 @@ export default function NumberWidget({ birthday }: NumberWidgetProps) {
         <div className="flex-1">
           <p className="text-white/40 text-xs mb-1">Life Path</p>
           <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
             className="text-5xl font-bold text-white tabular-nums"
           >
-            {lifePathNumber}
+            <AnimatedNumber value={lifePathNumber} delay={0.3} />
           </motion.div>
-          <p className="text-teal-300/80 text-xs mt-1">
+          <motion.p
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="text-teal-300/80 text-xs mt-1"
+          >
             {numberMeanings[lifePathNumber] || "Unique Path"}
-          </p>
+          </motion.p>
         </div>
 
         {/* Daily Number */}
         <div className="text-right">
           <p className="text-white/40 text-xs mb-1">Today</p>
           <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
             className="text-3xl font-semibold text-teal-300 tabular-nums"
           >
-            {dailyNumber}
+            <AnimatedNumber value={dailyNumber} delay={0.5} />
           </motion.div>
         </div>
       </div>
@@ -78,11 +127,18 @@ export default function NumberWidget({ birthday }: NumberWidgetProps) {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.7 }}
         className="mt-5 pt-4 border-t border-white/10"
       >
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse" />
+          <motion.div
+            className="w-1.5 h-1.5 rounded-full bg-teal-400"
+            animate={{
+              scale: [1, 1.5, 1],
+              opacity: [1, 0.5, 1],
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
           <p className="text-white/60 text-sm">
             Use <span className="text-white font-medium">{dailyNumber}</span> in decisions today
           </p>

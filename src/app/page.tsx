@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import BirthdayPicker from "@/components/BirthdayPicker";
 import ColorWidget from "@/components/ColorWidget";
 import NumberWidget from "@/components/NumberWidget";
@@ -13,9 +13,44 @@ import { formatThaiDate, getBirthColor } from "@/lib/fortune";
 const DEFAULT_BG = "linear-gradient(165deg, #0d4a4e 0%, #082a2d 50%, #061f22 100%)";
 const DEFAULT_GLOW = "rgba(79, 209, 197, 0.2)";
 
+// Stagger animation config
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: {
+    opacity: 0,
+    y: 40,
+    filter: "blur(10px)",
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: {
+      duration: 0.7,
+      ease: [0.23, 1, 0.32, 1], // Custom ease-out
+    },
+  },
+};
+
 export default function Home() {
   const [birthday, setBirthday] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Scroll-linked parallax
+  const { scrollY } = useScroll();
+  const glow1Y = useTransform(scrollY, [0, 500], [0, 150]);
+  const glow2Y = useTransform(scrollY, [0, 500], [0, -100]);
+  const glow3Y = useTransform(scrollY, [0, 500], [0, 75]);
 
   // Check for saved birthday on mount
   useEffect(() => {
@@ -36,7 +71,6 @@ export default function Home() {
       };
     }
     const { color } = getBirthColor(birthday);
-    // Extract the darkest color from the gradient for the bottom fade
     const fadeMatch = color.bgGradient.match(/#[a-f0-9]{6}(?=\s*100%)/i);
     return {
       bgGradient: color.bgGradient,
@@ -79,26 +113,27 @@ export default function Home() {
       />
 
       <main className="min-h-screen relative overflow-hidden">
-        {/* Ambient background glows - animated with birth color */}
+        {/* Ambient background glows - with scroll parallax */}
         <motion.div
           className="ambient-glow top-[-200px] left-[-100px]"
+          style={{ y: glow1Y }}
           initial={false}
           animate={{ backgroundColor: glowColor }}
           transition={{ duration: 1.2 }}
         />
         <motion.div
           className="ambient-glow bottom-[-150px] right-[-100px]"
+          style={{ y: glow2Y, opacity: 0.7 }}
           initial={false}
           animate={{ backgroundColor: glowColor }}
           transition={{ duration: 1.2, delay: 0.1 }}
-          style={{ opacity: 0.7 }}
         />
         <motion.div
-          className="ambient-glow top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          className="ambient-glow top-1/3 left-1/2 transform -translate-x-1/2"
+          style={{ y: glow3Y, opacity: 0.5 }}
           initial={false}
           animate={{ backgroundColor: glowColor }}
           transition={{ duration: 1.2, delay: 0.2 }}
-          style={{ opacity: 0.5 }}
         />
 
         {/* Content */}
@@ -109,7 +144,8 @@ export default function Home() {
                 key="picker"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, y: -20 }}
+                exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
+                transition={{ duration: 0.5 }}
                 className="min-h-screen flex items-center justify-center"
               >
                 <BirthdayPicker onSubmit={handleBirthdaySubmit} />
@@ -117,59 +153,49 @@ export default function Home() {
             ) : (
               <motion.div
                 key="dashboard"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                initial="hidden"
+                animate="visible"
                 exit={{ opacity: 0 }}
+                variants={containerVariants}
                 className="max-w-lg mx-auto"
               >
                 {/* Header */}
                 <motion.header
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  variants={itemVariants}
                   className="text-center mb-8"
                 >
-                  <motion.p
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="text-white/40 text-xs uppercase tracking-widest mb-2"
-                  >
+                  <p className="text-white/40 text-xs uppercase tracking-widest mb-2">
                     Your Daily Fortune
-                  </motion.p>
-                  <motion.h1
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="text-white text-3xl font-semibold"
-                  >
+                  </p>
+                  <h1 className="text-white text-3xl font-semibold">
                     {new Date().toLocaleDateString("en-US", {
                       weekday: "long",
                       month: "short",
                       day: "numeric",
                     })}
-                  </motion.h1>
+                  </h1>
                 </motion.header>
 
-                {/* Widgets Grid */}
-                <div className="space-y-4">
-                  {/* Color Widget - Full width, featured */}
+                {/* Widgets Grid - Staggered */}
+                <motion.div variants={itemVariants}>
                   <ColorWidget birthday={birthday} />
+                </motion.div>
 
-                  {/* Two column layout for smaller widgets */}
-                  <div className="grid grid-cols-1 gap-4">
-                    <NumberWidget birthday={birthday} />
-                    <DirectionWidget birthday={birthday} />
-                  </div>
+                <motion.div variants={itemVariants} className="mt-4">
+                  <NumberWidget birthday={birthday} />
+                </motion.div>
 
-                  {/* Horoscope - Full width */}
+                <motion.div variants={itemVariants} className="mt-4">
+                  <DirectionWidget birthday={birthday} />
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="mt-4">
                   <HoroscopeWidget birthday={birthday} />
-                </div>
+                </motion.div>
 
                 {/* Footer */}
                 <motion.footer
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8 }}
+                  variants={itemVariants}
                   className="mt-8 text-center"
                 >
                   <p className="text-white/30 text-xs mb-3">
@@ -187,7 +213,7 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
-        {/* Bottom safe area gradient - animated to match background */}
+        {/* Bottom safe area gradient */}
         <motion.div
           className="fixed bottom-0 left-0 right-0 h-20 pointer-events-none z-20"
           initial={false}
