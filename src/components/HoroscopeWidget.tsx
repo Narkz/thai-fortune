@@ -34,7 +34,7 @@ function BlurRevealText({ text, delay = 0, className = "" }: { text: string; del
       y: 0,
       transition: {
         duration: 0.4,
-        ease: [0.23, 1, 0.32, 1],
+        ease: [0.23, 1, 0.32, 1] as [number, number, number, number],
       },
     },
   };

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import WelcomeScreen from "@/components/WelcomeScreen";
+import RevealTransition from "@/components/RevealTransition";
 import ColorWidget from "@/components/ColorWidget";
 import NumberWidget from "@/components/NumberWidget";
 import HoroscopeWidget from "@/components/HoroscopeWidget";
@@ -18,7 +19,7 @@ const DEFAULT_BG = "linear-gradient(165deg, #134e4a 0%, #0f3d3a 50%, #0a2725 100
 const DEFAULT_GLOW = "rgba(94, 234, 212, 0.3)";
 
 // Custom easing curves from animations.dev blueprint
-const EASE_OUT_EXPO = [0.19, 1, 0.22, 1];
+const EASE_OUT_EXPO: [number, number, number, number] = [0.19, 1, 0.22, 1];
 
 // Stagger animation config with animations.dev principles
 const containerVariants = {
@@ -54,6 +55,8 @@ const itemVariants = {
 export default function Home() {
   const [birthday, setBirthday] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showReveal, setShowReveal] = useState(false);
+  const [pendingBirthday, setPendingBirthday] = useState<Date | null>(null);
 
   // Scroll-linked parallax
   const { scrollY } = useScroll();
@@ -85,7 +88,16 @@ export default function Home() {
 
   const handleBirthdaySubmit = (date: Date) => {
     localStorage.setItem("thai-fortune-birthday", date.toISOString());
-    setBirthday(date);
+    setPendingBirthday(date);
+    setShowReveal(true);
+  };
+
+  const handleRevealComplete = () => {
+    setShowReveal(false);
+    if (pendingBirthday) {
+      setBirthday(pendingBirthday);
+      setPendingBirthday(null);
+    }
   };
 
   const handleReset = () => {
@@ -104,45 +116,58 @@ export default function Home() {
 
   return (
     <>
-      {/* Animated background */}
-      <motion.div
-        className="fixed inset-0 -z-10"
-        initial={false}
-        animate={{ background: bgGradient }}
-        transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
-      />
+      {/* Animated background - only show on dashboard */}
+      {birthday && (
+        <motion.div
+          className="fixed inset-0 -z-10"
+          initial={false}
+          animate={{ background: bgGradient }}
+          transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
+        />
+      )}
 
-      {/* 3D Glass floating elements */}
-      <GlassElements accentColor={glowColor} />
+      {/* 3D Glass floating elements - only show on dashboard */}
+      {birthday && <GlassElements accentColor={glowColor} />}
 
       <main className="min-h-screen relative overflow-hidden noise-overlay">
-        {/* Ambient background glows - with scroll parallax */}
-        <motion.div
-          className="ambient-glow top-[-200px] left-[-100px]"
-          style={{ y: glow1Y }}
-          initial={false}
-          animate={{ backgroundColor: glowColor }}
-          transition={{ duration: 1.2 }}
-        />
-        <motion.div
-          className="ambient-glow bottom-[-150px] right-[-100px]"
-          style={{ y: glow2Y, opacity: 0.7 }}
-          initial={false}
-          animate={{ backgroundColor: glowColor }}
-          transition={{ duration: 1.2, delay: 0.1 }}
-        />
-        <motion.div
-          className="ambient-glow top-1/3 left-1/2 transform -translate-x-1/2"
-          style={{ y: glow3Y, opacity: 0.5 }}
-          initial={false}
-          animate={{ backgroundColor: glowColor }}
-          transition={{ duration: 1.2, delay: 0.2 }}
-        />
+        {/* Ambient background glows - only show on dashboard */}
+        {birthday && (
+          <>
+            <motion.div
+              className="ambient-glow top-[-200px] left-[-100px]"
+              style={{ y: glow1Y }}
+              initial={false}
+              animate={{ backgroundColor: glowColor }}
+              transition={{ duration: 1.2 }}
+            />
+            <motion.div
+              className="ambient-glow bottom-[-150px] right-[-100px]"
+              style={{ y: glow2Y, opacity: 0.7 }}
+              initial={false}
+              animate={{ backgroundColor: glowColor }}
+              transition={{ duration: 1.2, delay: 0.1 }}
+            />
+            <motion.div
+              className="ambient-glow top-1/3 left-1/2 transform -translate-x-1/2"
+              style={{ y: glow3Y, opacity: 0.5 }}
+              initial={false}
+              animate={{ backgroundColor: glowColor }}
+              transition={{ duration: 1.2, delay: 0.2 }}
+            />
+          </>
+        )}
+
+        {/* Reveal Transition Overlay */}
+        <AnimatePresence>
+          {showReveal && (
+            <RevealTransition onComplete={handleRevealComplete} />
+          )}
+        </AnimatePresence>
 
         {/* Content */}
         <div className="relative z-10 px-4 py-8 pb-32 min-h-screen">
           <AnimatePresence mode="wait">
-            {!birthday ? (
+            {!birthday && !showReveal ? (
               <motion.div
                 key="welcome"
                 initial={{ opacity: 0 }}
@@ -152,7 +177,7 @@ export default function Home() {
               >
                 <WelcomeScreen onSubmit={handleBirthdaySubmit} />
               </motion.div>
-            ) : (
+            ) : birthday ? (
               <motion.div
                 key="dashboard"
                 initial="hidden"
@@ -206,7 +231,7 @@ export default function Home() {
                   <HoldToReset onReset={handleReset} />
                 </motion.footer>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </div>
 
