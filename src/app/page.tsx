@@ -10,7 +10,6 @@ import DirectionWidget from "@/components/DirectionWidget";
 import GlassElements from "@/components/GlassElements";
 import HoldToReset from "@/components/HoldToReset";
 import MarqueeTicker from "@/components/MarqueeTicker";
-import FortuneDrawer from "@/components/FortuneDrawer";
 import { formatThaiDate, getTodayColor } from "@/lib/fortune";
 import { LoadingScreen } from "@/components/SkeletonLoader";
 
@@ -212,18 +211,13 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
-        {/* Fortune Drawer - pull up for details */}
-        {birthday && (
-          <FortuneDrawer birthday={birthday} accentColor={accentHex} />
-        )}
-
         {/* Marquee ticker at bottom */}
         {birthday && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.5 }}
-            className="fixed bottom-12 left-0 right-0 z-10"
+            className="fixed bottom-0 left-0 right-0 z-10"
             style={{ background: `linear-gradient(to top, ${bottomFade} 60%, transparent)` }}
           >
             <MarqueeTicker accentColor={accentHex} />
