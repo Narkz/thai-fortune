@@ -23,6 +23,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Custom text selection - uses CSS variable set by React */
+::selection {
+  background-color: var(--selection-color, rgba(79, 209, 197, 0.4));
+  color: inherit;
+}
+
+::-moz-selection {
+  background-color: var(--selection-color, rgba(79, 209, 197, 0.4));
+  color: inherit;
+}
+
 html {
   scroll-behavior: smooth;
 }

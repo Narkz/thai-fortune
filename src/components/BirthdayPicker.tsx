@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { hapticSuccess, hapticError, hapticLight } from "@/lib/haptics";
 
 interface BirthdayPickerProps {
   onSubmit: (date: Date) => void;
@@ -31,6 +32,7 @@ export default function BirthdayPicker({ onSubmit }: BirthdayPickerProps) {
 
   const handleSubmit = () => {
     setError("");
+    hapticLight();
 
     const dayNum = parseInt(day, 10);
     const monthNum = parseInt(month, 10);
@@ -38,16 +40,19 @@ export default function BirthdayPicker({ onSubmit }: BirthdayPickerProps) {
 
     if (!day || !month || !year) {
       setError("Please fill in all fields");
+      hapticError();
       return;
     }
 
     if (yearNum < 1900 || yearNum > currentYear) {
       setError("Please enter a valid year");
+      hapticError();
       return;
     }
 
     if (dayNum < 1 || dayNum > 31) {
       setError("Please enter a valid day");
+      hapticError();
       return;
     }
 
@@ -56,14 +61,17 @@ export default function BirthdayPicker({ onSubmit }: BirthdayPickerProps) {
     // Validate the date is real (e.g., not Feb 31)
     if (date.getMonth() !== monthNum - 1) {
       setError("Invalid date for this month");
+      hapticError();
       return;
     }
 
     if (date > new Date()) {
       setError("Birthday cannot be in the future");
+      hapticError();
       return;
     }
 
+    hapticSuccess();
     onSubmit(date);
   };
 

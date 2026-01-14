@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { getBirthColor, getTodayColor, THAI_DAYS } from "@/lib/fortune";
+import { useState, useEffect } from "react";
+import { getBirthColor, getTodayColor } from "@/lib/fortune";
+import Confetti from "./Confetti";
 
 interface ColorWidgetProps {
   birthday: Date;
@@ -10,7 +12,16 @@ interface ColorWidgetProps {
 export default function ColorWidget({ birthday }: ColorWidgetProps) {
   const birthData = getBirthColor(birthday);
   const todayColor = getTodayColor();
-  const today = new Date();
+  const isMatch = birthData.color.name === todayColor.name;
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  // Trigger confetti on mount if colors match
+  useEffect(() => {
+    if (isMatch) {
+      const timer = setTimeout(() => setShowConfetti(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isMatch]);
 
   return (
     <motion.div
@@ -130,8 +141,11 @@ export default function ColorWidget({ birthday }: ColorWidgetProps) {
           />
         </div>
 
+        {/* Confetti effect on match */}
+        <Confetti trigger={showConfetti} color={birthData.color.hex} />
+
         {/* Match indicator */}
-        {birthData.color.name === todayColor.name && (
+        {isMatch && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

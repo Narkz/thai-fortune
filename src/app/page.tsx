@@ -10,7 +10,9 @@ import DirectionWidget from "@/components/DirectionWidget";
 import GlassElements from "@/components/GlassElements";
 import HoldToReset from "@/components/HoldToReset";
 import MarqueeTicker from "@/components/MarqueeTicker";
-import { formatThaiDate, getBirthColor } from "@/lib/fortune";
+import FortuneDrawer from "@/components/FortuneDrawer";
+import { formatThaiDate, getTodayColor } from "@/lib/fortune";
+import { LoadingScreen } from "@/components/SkeletonLoader";
 
 // Default background - rich teal like reference design
 const DEFAULT_BG = "linear-gradient(165deg, #134e4a 0%, #0f3d3a 50%, #0a2725 100%)";
@@ -69,25 +71,25 @@ export default function Home() {
     setIsLoading(false);
   }, []);
 
-  // Get background colors based on birth color
+  // Get background colors based on TODAY's color (daily fortune theme)
   const { bgGradient, glowColor, bottomFade, accentHex } = useMemo(() => {
-    if (!birthday) {
-      return {
-        bgGradient: DEFAULT_BG,
-        glowColor: DEFAULT_GLOW,
-        bottomFade: "#0a2725",
-        accentHex: "#5eead4"
-      };
-    }
-    const { color } = getBirthColor(birthday);
-    const fadeMatch = color.bgGradient.match(/#[a-f0-9]{6}(?=\s*100%)/i);
+    const todayColor = getTodayColor();
+    const fadeMatch = todayColor.bgGradient.match(/#[a-f0-9]{6}(?=\s*100%)/i);
     return {
-      bgGradient: color.bgGradient,
-      glowColor: color.glowColor,
+      bgGradient: todayColor.bgGradient,
+      glowColor: todayColor.glowColor,
       bottomFade: fadeMatch ? fadeMatch[0] : "#0a2725",
-      accentHex: color.hex
+      accentHex: todayColor.hex
     };
-  }, [birthday]);
+  }, []);
+
+  // Set CSS variable for text selection color
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--selection-color",
+      `${accentHex}50` // 50 = ~30% opacity in hex
+    );
+  }, [accentHex]);
 
   const handleBirthdaySubmit = (date: Date) => {
     localStorage.setItem("thai-fortune-birthday", date.toISOString());
@@ -99,15 +101,11 @@ export default function Home() {
     setBirthday(null);
   };
 
-  // Loading state
+  // Loading state with skeleton
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: DEFAULT_BG }}>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          className="w-8 h-8 border-2 border-teal-400 border-t-transparent rounded-full"
-        />
+      <div className="min-h-screen" style={{ background: bgGradient }}>
+        <LoadingScreen />
       </div>
     );
   }
@@ -221,13 +219,18 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
+        {/* Fortune Drawer - pull up for details */}
+        {birthday && (
+          <FortuneDrawer birthday={birthday} accentColor={accentHex} />
+        )}
+
         {/* Marquee ticker at bottom */}
         {birthday && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1, duration: 0.5 }}
-            className="fixed bottom-0 left-0 right-0 z-10"
+            className="fixed bottom-12 left-0 right-0 z-10"
             style={{ background: `linear-gradient(to top, ${bottomFade} 60%, transparent)` }}
           >
             <MarqueeTicker accentColor={accentHex} />
