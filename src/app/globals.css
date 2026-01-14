@@ -21,17 +21,23 @@
 
 * {
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
-/* Custom text selection - uses CSS variable set by React */
-::selection {
-  background-color: var(--selection-color, rgba(79, 209, 197, 0.4));
-  color: inherit;
+/* Disable text selection globally for app-like feel */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-::-moz-selection {
-  background-color: var(--selection-color, rgba(79, 209, 197, 0.4));
-  color: inherit;
+/* Allow selection only in input fields */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 html {

@@ -127,21 +127,6 @@ export default function MarqueeTicker({ accentColor = "#5eead4" }: MarqueeTicker
         ))}
       </motion.div>
 
-      {/* Drag hint indicator */}
-      <motion.div
-        className="absolute bottom-0 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isDragging ? 0 : 0.3 }}
-        transition={{ delay: 2 }}
-      >
-        <motion.div
-          animate={{ x: [-3, 3, -3] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="text-white/30 text-xs"
-        >
-          ← swipe →
-        </motion.div>
-      </motion.div>
     </div>
   );
 }

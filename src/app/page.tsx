@@ -83,13 +83,6 @@ export default function Home() {
     };
   }, []);
 
-  // Set CSS variable for text selection color
-  useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--selection-color",
-      `${accentHex}50` // 50 = ~30% opacity in hex
-    );
-  }, [accentHex]);
 
   const handleBirthdaySubmit = (date: Date) => {
     localStorage.setItem("thai-fortune-birthday", date.toISOString());
