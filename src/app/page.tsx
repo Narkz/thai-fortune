@@ -7,6 +7,9 @@ import ColorWidget from "@/components/ColorWidget";
 import NumberWidget from "@/components/NumberWidget";
 import HoroscopeWidget from "@/components/HoroscopeWidget";
 import DirectionWidget from "@/components/DirectionWidget";
+import GlassElements from "@/components/GlassElements";
+import HoldToReset from "@/components/HoldToReset";
+import MarqueeTicker from "@/components/MarqueeTicker";
 import { formatThaiDate, getBirthColor } from "@/lib/fortune";
 
 // Default background - rich teal like reference design
@@ -14,9 +17,6 @@ const DEFAULT_BG = "linear-gradient(165deg, #134e4a 0%, #0f3d3a 50%, #0a2725 100
 const DEFAULT_GLOW = "rgba(94, 234, 212, 0.3)";
 
 // Custom easing curves from animations.dev blueprint
-// ease-out-custom: Strong acceleration at start, smooth deceleration
-const EASE_OUT = [0.16, 1, 0.3, 1];
-// ease-out-expo: Even more dramatic for entrances
 const EASE_OUT_EXPO = [0.19, 1, 0.22, 1];
 
 // Stagger animation config with animations.dev principles
@@ -70,12 +70,13 @@ export default function Home() {
   }, []);
 
   // Get background colors based on birth color
-  const { bgGradient, glowColor, bottomFade } = useMemo(() => {
+  const { bgGradient, glowColor, bottomFade, accentHex } = useMemo(() => {
     if (!birthday) {
       return {
         bgGradient: DEFAULT_BG,
         glowColor: DEFAULT_GLOW,
-        bottomFade: "#061f22"
+        bottomFade: "#0a2725",
+        accentHex: "#5eead4"
       };
     }
     const { color } = getBirthColor(birthday);
@@ -83,7 +84,8 @@ export default function Home() {
     return {
       bgGradient: color.bgGradient,
       glowColor: color.glowColor,
-      bottomFade: fadeMatch ? fadeMatch[0] : "#061f22"
+      bottomFade: fadeMatch ? fadeMatch[0] : "#0a2725",
+      accentHex: color.hex
     };
   }, [birthday]);
 
@@ -120,6 +122,9 @@ export default function Home() {
         transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
       />
 
+      {/* 3D Glass floating elements */}
+      <GlassElements accentColor={glowColor} />
+
       <main className="min-h-screen relative overflow-hidden">
         {/* Ambient background glows - with scroll parallax */}
         <motion.div
@@ -145,7 +150,7 @@ export default function Home() {
         />
 
         {/* Content */}
-        <div className="relative z-10 px-4 py-8 pb-20 min-h-screen">
+        <div className="relative z-10 px-4 py-8 pb-32 min-h-screen">
           <AnimatePresence mode="wait">
             {!birthday ? (
               <motion.div
@@ -201,32 +206,40 @@ export default function Home() {
                   <HoroscopeWidget birthday={birthday} />
                 </motion.div>
 
-                {/* Footer */}
+                {/* Footer with Hold to Reset */}
                 <motion.footer
                   variants={itemVariants}
-                  className="mt-8 text-center"
+                  className="mt-8 flex flex-col items-center gap-4"
                 >
-                  <p className="text-white/30 text-xs mb-3">
+                  <p className="text-white/30 text-xs">
                     Born {formatThaiDate(birthday)}
                   </p>
-                  <button
-                    onClick={handleReset}
-                    className="text-white/40 text-xs hover:text-white/60 transition-colors underline underline-offset-2"
-                  >
-                    Change birthday
-                  </button>
+                  <HoldToReset onReset={handleReset} />
                 </motion.footer>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
+        {/* Marquee ticker at bottom */}
+        {birthday && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1, duration: 0.5 }}
+            className="fixed bottom-0 left-0 right-0 z-10"
+            style={{ background: `linear-gradient(to top, ${bottomFade} 60%, transparent)` }}
+          >
+            <MarqueeTicker accentColor={accentHex} />
+          </motion.div>
+        )}
+
         {/* Bottom safe area gradient */}
         <motion.div
-          className="fixed bottom-0 left-0 right-0 h-20 pointer-events-none z-20"
+          className="fixed bottom-0 left-0 right-0 h-4 pointer-events-none z-20"
           initial={false}
           animate={{
-            background: `linear-gradient(to top, ${bottomFade}, transparent)`
+            background: bottomFade
           }}
           transition={{ duration: 1.2 }}
         />
